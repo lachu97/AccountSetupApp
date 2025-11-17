@@ -60,20 +60,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const register = async (email: string, passwordHash: string) => {
-    await SecureAuth.saveCredentials({ username: email, passwordHash });
-    dispatch({ type: 'LOGIN', payload: { email } });
+    try {
+      await SecureAuth.saveCredentials({ username: email, passwordHash });
+      dispatch({ type: 'LOGIN', payload: { email } });
+    } catch (e) {
+      console.error(e);
+    }
+
   };
 
   const login = async (email: string, passwordHash: string) => {
-    const stored = await SecureAuth.getCredentials();
-    if (!stored || stored.passwordHash !== passwordHash) {
-      const next = state.failedAttempts + 1;
-      dispatch({ type: 'SET_FAILED', payload: next });
-      if (next >= 5) dispatch({ type: 'LOCK' });
-      return { ok: false, attempts: next };
+    try {
+      const stored = await SecureAuth.getCredentials();
+      if (!stored || stored.passwordHash !== passwordHash) {
+        const next = state.failedAttempts + 1;
+        dispatch({ type: 'SET_FAILED', payload: next });
+        if (next >= 5) dispatch({ type: 'LOCK' });
+        return { ok: false, attempts: next };
+      }
+      dispatch({ type: 'LOGIN', payload: { email } });
+      return { ok: true };
+    } catch (e) {
+      console.error(e);
     }
-    dispatch({ type: 'LOGIN', payload: { email } });
-    return { ok: true };
+
   };
 
   const logout = async () => {

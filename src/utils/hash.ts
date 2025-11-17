@@ -1,4 +1,5 @@
-import CryptoJS from "react-native-crypto-js";
-export async function sha256(input: string): Promise<string> {
-  return CryptoJS.SHA256(input).toString();
+import SHA256 from 'crypto-js/sha256';
+import Hex from 'crypto-js/enc-hex';
+export function sha256(input: string): string {
+  return SHA256(input).toString(Hex);
 }
